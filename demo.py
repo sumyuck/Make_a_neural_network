@@ -8,10 +8,6 @@ class NeuralNetwork():
         # every time the program runs.
         random.seed(1)
         self.in_out_dim = [[3, 4], [4, 1]]
-        # We model a single neuron, with 3 input connections and 1 output connection.
-        # We assign random weights to a 3 x 1 matrix, with values in the range -1 to 1
-        # and mean 0.
-        # self.synaptic_weights = 2 * random.random((3, 1)) - 1
         self.synaptic_weights = []
         self.num_layers = 2
         for iteration in xrange(self.num_layers):
@@ -33,38 +29,46 @@ class NeuralNetwork():
     # We train the neural network through a process of trial and error.
     # Adjusting the synaptic weights each time.
     def train(self, training_set_inputs, training_set_outputs, number_of_training_iterations, learning_rate):
-        for iteration in xrange(number_of_training_iterations):
-            # Pass the training set through our neural network (a single
-            # neuron).
-            layer_0 = training_set_inputs
-            layer_1 = self.__sigmoid(dot(layer_0, self.synaptic_weights[0]))
-            layer_2 = self.__sigmoid(dot(layer_1, self.synaptic_weights[1]))
-            # layer_2 = dot(layer_1, self.synaptic_weights[1])
-            # output = self.think(training_set_inputs)
+        for tr_iter in xrange(number_of_training_iterations):
+            # Pass the training set through our neural network
+            l = self.num_layers
+            layers = []
+            errors = [None] * (l + 1)
+            delta = [None] * (l + 1)
+            layers.append(training_set_inputs)
+            for iteration in range(l):
+                layers.append(self.__sigmoid(
+                    dot(layers[iteration], self.synaptic_weights[iteration])))
+
             # Calculate the error (The difference between the desired output
             # and the predicted output).
-            error_2 = training_set_outputs - layer_2
+            errors[l] = training_set_outputs - layers[l]
+            delta[l] = dot(errors[l] *
+                           self.__sigmoid_derivative(layers[l]), learning_rate)
+
             # Print to see the decrease in the error
-            if (iteration % 10000) == 0:
-                print "Error:" + str(mean(abs(error_2)))
+            if (tr_iter % 10000) == 0:
+                print "Error:" + str(mean(abs(errors[l])))
+
             # Back Propagation
-            delta_2 = error_2 * \
-                self.__sigmoid_derivative(layer_2)
-            error_1 = dot(delta_2, self.synaptic_weights[1].T)
-            delta_1 = dot(
-                error_1 * self.__sigmoid_derivative(layer_1), learning_rate)
+            for iteration in xrange(l - 1, 0, -1):
+                errors[iteration] = dot(
+                    delta[iteration + 1], self.synaptic_weights[iteration].T)
+                delta[iteration] = dot(
+                    errors[iteration] * self.__sigmoid_derivative(layers[iteration]), learning_rate)
 
             # # Adjust the weights.
-            self.synaptic_weights[0] += dot(layer_0.T, delta_1)
-            self.synaptic_weights[1] += dot(layer_1.T, delta_2)
+            for iteration in xrange(l):
+                self.synaptic_weights[
+                    iteration] += dot(layers[iteration].T, delta[iteration + 1])
 
     # # The neural network thinks.
     def think(self, inputs):
         # Pass inputs through our neural network (our single neuron).
-        layer_0 = inputs
-        layer_1 = self.__sigmoid(dot(layer_0, self.synaptic_weights[0]))
-        layer_2 = self.__sigmoid(dot(layer_1, self.synaptic_weights[1]))
-        return layer_2
+        data = inputs
+        for iteration in xrange(self.num_layers):
+            data = self.__sigmoid(dot(data, self.synaptic_weights[iteration]))
+        return data
 
 
 if __name__ == "__main__":
@@ -83,7 +87,7 @@ if __name__ == "__main__":
     # Train the neural network using a training set.
     # Do it 10,000 times and make small adjustments each time.
     neural_network.train(training_set_inputs,
-                         training_set_outputs, 100000, 0.01)
+                         training_set_outputs, 200000, 0.01)
 
     print "New synaptic weights after training: "
     print neural_network.synaptic_weights
