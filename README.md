@@ -2,7 +2,7 @@
 This is the code for the "Make a Neural Network" - Intro to Deep Learning #2 coding challenge by Siraj Raval on Youtube
 
 ## Overview
-The neural network consists of 3 layers of which 2 are hidden layers and is made using just the numpy dependency in python.
+The neural network can take any number of layers, mention it in the code.
 
 ## Dependencies
 
