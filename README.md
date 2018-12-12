@@ -2,7 +2,7 @@
 This is the code for the "Make a Neural Network" - Intro to Deep Learning #2 coding challenge by Siraj Raval on Youtube
 
 ## Overview
-The neural network can take any number of layers, mention it in the code.
+The neural network can work with arbitary number of layers and weights to carry out a classification task. 
 
 ## Dependencies
 
